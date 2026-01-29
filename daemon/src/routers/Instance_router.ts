@@ -62,12 +62,12 @@ routerApp.on("instance/select", (ctx, data) => {
   let result = queryWrapper.select<Instance>((v) => {
     if (v.config.tag) allTags.push(...v.config.tag);
     if (InstanceSubsystem.isGlobalInstance(v)) return false;
-    
+
     // 如果指定了实例UUID列表，只返回这些实例
     if (instanceUuids instanceof Array) {
       if (!instanceUuids.includes(v.instanceUuid)) return false;
     }
-    
+
     if (
       condition.instanceName &&
       !v.config.nickname.toLowerCase().includes(condition.instanceName.toLowerCase())
@@ -161,7 +161,7 @@ routerApp.on("instance/detail", async (ctx, data) => {
     try {
       // Parts that may be wrong due to file permissions, avoid affecting the acquisition of the entire configuration
       processInfo = await instance.forceExec(new ProcessInfoCommand());
-    } catch (err: any) {}
+    } catch (err: any) { }
     protocol.msg(ctx, "instance/detail", {
       instanceUuid: instance.instanceUuid,
       started: instance.startCount,
@@ -370,7 +370,7 @@ routerApp.on("instance/delete", (ctx, data) => {
         nickname: instance.config.nickname
       });
       InstanceSubsystem.removeInstance(instanceUuid, deleteFile);
-    } catch (err: any) {}
+    } catch (err: any) { }
   }
   protocol.msg(ctx, "instance/delete", { instanceUuids, instances });
 });
@@ -394,7 +394,7 @@ routerApp.on("instance/asynchronous", (ctx, data) => {
   if (taskName === "install_instance" && instance) {
     instance
       .execPreset("install", parameter)
-      .then(() => {})
+      .then(() => { })
       .catch((err) => {
         logger.error(
           $t("TXT_CODE_Instance_router.performTasksErr", {
@@ -411,7 +411,7 @@ routerApp.on("instance/asynchronous", (ctx, data) => {
   if (taskName === "update" && instance) {
     instance
       .execPreset("update", parameter)
-      .then(() => {})
+      .then(() => { })
       .catch((err) => {
         logger.error(
           $t("TXT_CODE_Instance_router.performTasksErr", {
@@ -457,8 +457,8 @@ routerApp.on("instance/stop_asynchronous", (ctx, data) => {
   if (task && task.stop) {
     task
       .stop(instance)
-      .then(() => {})
-      .catch((err) => {});
+      .then(() => { })
+      .catch((err) => { });
   } else {
     return protocol.error(
       ctx,

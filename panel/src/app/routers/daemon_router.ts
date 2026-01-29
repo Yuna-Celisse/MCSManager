@@ -49,7 +49,7 @@ router.get(
     } catch (error) {
       // ignore
     }
-    
+
     // 如果指定了用户筛选，获取该用户拥有的实例
     let userInstanceUuids: string[] | null = null;
     if (userUuid) {
@@ -62,7 +62,7 @@ router.get(
         userInstanceUuids = []; // 用户不存在时返回空
       }
     }
-    
+
     const result = await new RemoteRequest(remoteService).request("instance/select", {
       page,
       pageSize,

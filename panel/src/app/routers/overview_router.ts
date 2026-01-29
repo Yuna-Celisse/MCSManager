@@ -13,8 +13,8 @@ import {
 import RemoteRequest from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
 import VisualDataSubsystem from "../service/visual_data";
-import { getVersion, specifiedDaemonVersion } from "../version";
 import { systemConfig } from "../setting";
+import { getVersion, specifiedDaemonVersion } from "../version";
 
 const router = new Router({ prefix: "/overview" });
 
