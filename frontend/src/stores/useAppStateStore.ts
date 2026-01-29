@@ -25,7 +25,9 @@ export const useAppStateStore = createGlobalState(() => {
       allowUsePreset: false,
       businessMode: false,
       businessId: "",
-      allowChangeCmd: false
+      allowChangeCmd: false,
+      allowRegister: false,
+      allowUserCreateInstance: false
     }
   });
 

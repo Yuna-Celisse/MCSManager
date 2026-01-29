@@ -94,6 +94,10 @@ export type UserCreateOptions = {
   target_user_name: string;
 } & GlobalGeneralOptions;
 
+export type UserRegisterOptions = {
+  type: "user_register";
+} & GlobalGeneralOptions;
+
 export type UserDeleteOptions = {
   type: "user_delete";
   target_user_name: string;
@@ -131,6 +135,7 @@ export type OperationLoggerItem =
   | DaemonRemoveOptions
   | DaemonConfigChangeOptions
   | UserCreateOptions
+  | UserRegisterOptions
   | UserDeleteOptions
   | UserConfigChangeOptions
   | UserLoginOptions
