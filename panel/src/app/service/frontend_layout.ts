@@ -45,7 +45,7 @@ export function resetFrontendLayoutConfig() {
   const filesDir = path.join(process.cwd(), SAVE_DIR_PATH);
   if (fs.existsSync(filesDir)) {
     for (const fileName of fs.readdirSync(filesDir)) {
-      fs.remove(path.join(filesDir, fileName), () => {});
+      fs.remove(path.join(filesDir, fileName), () => { });
     }
   }
 }
@@ -600,6 +600,20 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
           meta: {},
           type: "LoginCard",
           title: t("TXT_CODE_ccb60658"),
+          width: 4,
+          height: LayoutCardHeight.AUTO,
+          disableDelete: true
+        }
+      ]
+    },
+    {
+      page: "/register",
+      items: [
+        {
+          id: getRandomId(),
+          meta: {},
+          type: "RegisterCard",
+          title: t("TXT_CODE_register_title"),
           width: 4,
           height: LayoutCardHeight.AUTO,
           disableDelete: true

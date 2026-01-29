@@ -88,6 +88,8 @@ export interface Settings {
   allowChangeCmd: boolean;
   registerCode: string;
   panelId: string;
+  allowRegister: boolean;
+  allowUserCreateInstance: boolean;
 }
 
 export interface ImageInfo {
@@ -246,5 +248,7 @@ export interface PanelStatus {
     businessId: string;
     allowChangeCmd: boolean;
     panelId: string;
+    allowRegister: boolean;
+    allowUserCreateInstance: boolean;
   };
 }

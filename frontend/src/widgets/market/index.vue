@@ -15,13 +15,18 @@ import {
   FileZipOutlined,
   FolderOpenOutlined
 } from "@ant-design/icons-vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps<{
   card: LayoutCard;
 }>();
 
-const { isAdmin } = useAppStateStore();
+const { isAdmin, state: appConfig } = useAppStateStore();
+
+// 允许显示手动安装选项：管理员或启用了允许用户自建实例
+const canCreateInstance = computed(() => {
+  return isAdmin.value || appConfig.settings?.allowUserCreateInstance;
+});
 
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
 const daemonId = getMetaOrRouteValue("daemonId", false) ?? "";
@@ -93,7 +98,7 @@ const manualInstallOptions = [
 
 <template>
   <div style="height: 100%">
-    <div v-if="isAdmin" style="margin-bottom: 30px">
+    <div v-if="canCreateInstance" style="margin-bottom: 30px">
       <a-typography-title :level="4" style="margin-bottom: 8px">
         <AppstoreAddOutlined />
         {{ t("TXT_CODE_5a74975b") }}

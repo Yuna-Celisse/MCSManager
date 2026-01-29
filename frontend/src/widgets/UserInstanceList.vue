@@ -4,14 +4,17 @@ import { onMounted } from "vue";
 import type { LayoutCard } from "@/types";
 import { userInfoApi } from "@/services/apis/index";
 import { useRouter } from "vue-router";
+import { useAppStateStore } from "@/stores/useAppStateStore";
 import { INSTANCE_STATUS, INSTANCE_STATUS_CODE } from "@/types/const";
 import { parseTimestamp } from "../tools/time";
+import { PlusOutlined } from "@ant-design/icons-vue";
 
 defineProps<{
   card: LayoutCard;
 }>();
 
 const router = useRouter();
+const { state: appConfig } = useAppStateStore();
 
 const { execute, state } = userInfoApi();
 
@@ -69,6 +72,10 @@ const operate = (daemonId: string, instanceId: string) => {
   });
 };
 
+const goToMarket = () => {
+  router.push({ path: "/market" });
+};
+
 onMounted(() => {
   getInstanceList();
 });
@@ -78,6 +85,12 @@ onMounted(() => {
   <CardPanel>
     <template #title>{{ card.title }}</template>
     <template #body>
+      <div v-if="appConfig.settings.allowUserCreateInstance" class="mb-16">
+        <a-button type="primary" @click="goToMarket">
+          <template #icon><PlusOutlined /></template>
+          {{ t("TXT_CODE_create_instance") }}
+        </a-button>
+      </div>
       <a-table
         :data-source="state?.instances"
         :columns="columns"

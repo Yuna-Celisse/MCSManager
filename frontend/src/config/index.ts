@@ -7,8 +7,8 @@ import ImageManager from "@/widgets/imageManager/index.vue";
 import NewImage from "@/widgets/imageManager/NewImage.vue";
 import InstanceBaseInfo from "@/widgets/instance/BaseInfo.vue";
 import InstanceFileManager from "@/widgets/instance/FileManager.vue";
-import InstanceModManager from "@/widgets/instance/ModManager.vue";
 import InstanceManagerBtns from "@/widgets/instance/ManagerBtns.vue";
+import InstanceModManager from "@/widgets/instance/ModManager.vue";
 import Schedule from "@/widgets/instance/Schedule.vue";
 import InstanceServerConfigFile from "@/widgets/instance/ServerConfigFile.vue";
 import InstanceServerConfigOverview from "@/widgets/instance/ServerConfigOverview.vue";
@@ -34,6 +34,7 @@ import TextCard from "@/widgets/others/TextCard.vue";
 import Page404 from "@/widgets/Page404.vue";
 import DataOverview from "@/widgets/PanelOverview.vue";
 import QuickStart from "@/widgets/QuickStart.vue";
+import RegisterCard from "@/widgets/RegisterCard.vue";
 import RequestChart from "@/widgets/RequestChart.vue";
 import Settings from "@/widgets/Settings.vue";
 import McPreset from "@/widgets/setupApp/McPreset.vue";
@@ -53,6 +54,7 @@ import { ROLE } from "./router";
 // Register specified Vue components for each card.
 export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   LoginCard,
+  RegisterCard,
   Page404,
   TitleCard,
   EmptyCard,

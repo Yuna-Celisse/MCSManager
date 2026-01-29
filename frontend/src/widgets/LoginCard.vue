@@ -90,6 +90,10 @@ const openBuyInstanceDialog = async () => {
   router.push({ path: "/shop" });
 };
 
+const goToRegister = () => {
+  router.push({ path: "/register" });
+};
+
 onMounted(async () => {
   await execute();
   if (!appConfig.isInstall) router.push({ path: "/install" });
@@ -167,18 +171,24 @@ onMounted(async () => {
             </form>
 
             <div class="mt-24 flex-between align-center">
-              <div v-if="!appConfig.settings.businessMode" class="mcsmanager-link">
-                <div
-                  v-if="pageInfoResult?.loginInfo"
-                  class="global-markdown-html"
-                  v-html="markdownToHTML(pageInfoResult?.loginInfo || '')"
-                ></div>
-                Powered by
-                <a href="https://mcsmanager.com" target="_blank" rel="noopener noreferrer">
-                  MCSManager
-                </a>
+              <div class="mcsmanager-link">
+                <div v-if="appConfig.settings.allowRegister" class="register-link mb-8">
+                  <a href="javascript:void(0)" @click="goToRegister">
+                    {{ t("TXT_CODE_login_no_account") }}
+                  </a>
+                </div>
+                <div v-if="!appConfig.settings.businessMode">
+                  <div
+                    v-if="pageInfoResult?.loginInfo"
+                    class="global-markdown-html"
+                    v-html="markdownToHTML(pageInfoResult?.loginInfo || '')"
+                  ></div>
+                  Powered by
+                  <a href="https://mcsmanager.com" target="_blank" rel="noopener noreferrer">
+                    MCSManager
+                  </a>
+                </div>
               </div>
-              <div v-else></div>
               <div class="justify-end" style="gap: 10px">
                 <a-button
                   v-if="appConfig.settings.businessMode"
@@ -256,11 +266,14 @@ onMounted(async () => {
 
 .mcsmanager-link {
   font-size: var(--font-body);
-  text-align: right;
+  text-align: left;
   color: var(--color-gray-7);
   a {
     color: var(--color-gray-7) !important;
     text-decoration: underline;
+  }
+  .register-link a {
+    color: var(--color-blue-5) !important;
   }
 }
 .logging-icon {

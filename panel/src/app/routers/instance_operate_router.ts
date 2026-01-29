@@ -187,10 +187,12 @@ router.post(
       const parameter = ctx.request.body;
 
       // some asynchronous tasks are only allowed for administrators
+      // or users when allowUserCreateInstance is enabled
       const needTopPermissionTask = ["quick_install"];
       if (
         needTopPermissionTask.includes(taskName) &&
-        !isTopPermissionByUuid(ctx.session?.["uuid"])
+        !isTopPermissionByUuid(ctx.session?.["uuid"]) &&
+        !systemConfig?.allowUserCreateInstance
       ) {
         throw new Error("illegal access");
       }

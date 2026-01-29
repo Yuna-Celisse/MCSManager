@@ -57,6 +57,12 @@ export default class SystemConfig {
   // Whether to allow users to edit the start & update command of Docker instances
   allowChangeCmd = false;
 
+  // Whether to allow public user registration
+  allowRegister = false;
+
+  // Whether to allow users to create their own instances via market
+  allowUserCreateInstance = false;
+
   // -----
   // After it is enabled, you can connect to the redeem.mcsmanager.com platform
   // to sell instances based on redeem

@@ -740,6 +740,54 @@ onUnmounted(() => {
                     </a-select>
                   </a-form-item>
 
+                  <a-form-item>
+                    <a-typography-title :level="5">
+                      {{ t("TXT_CODE_allow_register") }}
+                    </a-typography-title>
+                    <a-typography-paragraph>
+                      <a-typography-text type="secondary">
+                        {{ t("TXT_CODE_allow_register_desc") }}
+                      </a-typography-text>
+                    </a-typography-paragraph>
+
+                    <a-select
+                      v-model:value.prop="(formData as any).allowRegister"
+                      style="max-width: 320px"
+                    >
+                      <a-select-option
+                        v-for="item in allYesNo"
+                        :key="item.value"
+                        :value="item.value"
+                      >
+                        {{ item.label }}
+                      </a-select-option>
+                    </a-select>
+                  </a-form-item>
+
+                  <a-form-item>
+                    <a-typography-title :level="5">
+                      {{ t("TXT_CODE_allow_user_create_instance") }}
+                    </a-typography-title>
+                    <a-typography-paragraph>
+                      <a-typography-text type="secondary">
+                        {{ t("TXT_CODE_allow_user_create_instance_desc") }}
+                      </a-typography-text>
+                    </a-typography-paragraph>
+
+                    <a-select
+                      v-model:value.prop="(formData as any).allowUserCreateInstance"
+                      style="max-width: 320px"
+                    >
+                      <a-select-option
+                        v-for="item in allYesNo"
+                        :key="item.value"
+                        :value="item.value"
+                      >
+                        {{ item.label }}
+                      </a-select-option>
+                    </a-select>
+                  </a-form-item>
+
                   <div class="button">
                     <a-button type="primary" :loading="submitIsLoading" @click="submit(false)">
                       {{ t("TXT_CODE_abfe9512") }}

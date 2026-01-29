@@ -4,6 +4,7 @@ import type { LoginUserInfo } from "@/types/user";
 import InstallPage from "@/views/Install.vue";
 import LayoutContainer from "@/views/LayoutContainer.vue";
 import LoginPage from "@/views/Login.vue";
+import RegisterPage from "@/views/Register.vue";
 import {
   createRouter,
   createWebHashHistory,
@@ -16,12 +17,12 @@ export interface RouterMetaInfo {
   mainMenu?: boolean;
   permission?: number;
   redirect?:
-    | string
-    | ((
-        userInfo: LoginUserInfo | undefined,
-        to: RouteLocationNormalized,
-        from: RouteLocationNormalized
-      ) => string);
+  | string
+  | ((
+    userInfo: LoginUserInfo | undefined,
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized
+  ) => string);
   onlyDisplayEditMode?: boolean;
   customClass?: string[];
   condition?: () => boolean;
@@ -40,12 +41,12 @@ export interface RouterConfig {
   children?: RouterConfig[];
   meta: RouterMetaInfo;
   redirect?:
-    | string
-    | ((
-        userInfo: LoginUserInfo,
-        to: RouteLocationNormalized,
-        from: RouteLocationNormalized
-      ) => string);
+  | string
+  | ((
+    userInfo: LoginUserInfo,
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized
+  ) => string);
 }
 
 export enum ROLE {
@@ -62,6 +63,15 @@ const originRouterConfig: RouterConfig[] = [
     path: "/install",
     name: t("TXT_CODE_82d650be"),
     component: InstallPage,
+    meta: {
+      permission: ROLE.GUEST,
+      mainMenu: false
+    }
+  },
+  {
+    path: "/register",
+    name: t("TXT_CODE_register_page"),
+    component: RegisterPage,
     meta: {
       permission: ROLE.GUEST,
       mainMenu: false
@@ -173,7 +183,7 @@ const originRouterConfig: RouterConfig[] = [
     component: LayoutContainer,
     meta: {
       mainMenu: true,
-      permission: ROLE.ADMIN
+      permission: ROLE.USER
     },
     children: [
       {
@@ -377,7 +387,7 @@ router.beforeEach((to, from, next) => {
 
   if (
     toRoutePath.includes("_open_page") ||
-    ["/shop", "/login", "/install", "/404"].includes(toRoutePath)
+    ["/shop", "/login", "/install", "/register", "/404"].includes(toRoutePath)
   ) {
     return next();
   }

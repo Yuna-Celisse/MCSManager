@@ -1,17 +1,17 @@
-import Koa from "koa";
 import Router from "@koa/router";
-import validator from "../middleware/validator";
-import permission from "../middleware/permission";
-import { check, login, logout, checkBanIp, loginSuccess } from "../service/passport_service";
-import { systemConfig } from "../setting";
-import userSystem, { TwoFactorError } from "../service/user_service";
-import { logger } from "../service/log";
-import { $t } from "../i18n";
 import axios from "axios";
+import Koa from "koa";
 import { GlobalVariable } from "mcsmanager-common";
-import { ROLE } from "../entity/user";
 import SystemConfig from "../entity/setting";
+import { ROLE } from "../entity/user";
+import { $t } from "../i18n";
+import permission from "../middleware/permission";
+import validator from "../middleware/validator";
+import { logger } from "../service/log";
 import { operationLogger } from "../service/operation_logger";
+import { check, checkBanIp, login, logout } from "../service/passport_service";
+import userSystem, { TwoFactorError } from "../service/user_service";
+import { systemConfig } from "../setting";
 
 const router = new Router({ prefix: "/auth" });
 
@@ -92,9 +92,50 @@ router.all(
         businessMode: systemConfig?.businessMode || false,
         businessId: systemConfig?.businessId || null,
         allowChangeCmd: systemConfig?.allowChangeCmd || false,
-        panelId: systemConfig?.panelId || null
+        panelId: systemConfig?.panelId || null,
+        allowRegister: systemConfig?.allowRegister || false,
+        allowUserCreateInstance: systemConfig?.allowUserCreateInstance || false
       } as Partial<SystemConfig>
     };
+  }
+);
+
+// [Public Permission]
+// Public user registration route
+router.post(
+  "/register",
+  permission({ token: false, level: null }),
+  validator({ body: { username: String, password: String } }),
+  async (ctx: Koa.ParameterizedContext) => {
+    // Check if IP is banned
+    if (!checkBanIp(ctx)) throw new Error($t("TXT_CODE_router.login.ban"));
+    // Check if registration is allowed
+    if (!systemConfig?.allowRegister) {
+      throw new Error($t("TXT_CODE_router.login.registerDisabled"));
+    }
+    const userName = String(ctx.request.body.username);
+    const passWord = String(ctx.request.body.password);
+    // Validate password
+    if (!userSystem.validatePassword(passWord)) {
+      throw new Error($t("TXT_CODE_router.user.passwordCheck"));
+    }
+    // Check if username already exists
+    if (userSystem.existUserName(userName)) {
+      throw new Error($t("TXT_CODE_router.user.existsUserName"));
+    }
+    // Create user with normal user permission (1)
+    await userSystem.create({
+      userName,
+      passWord,
+      permission: 1
+    });
+    operationLogger.log("user_register", {
+      operator_ip: ctx.ip,
+      operator_name: userName,
+      target_user_name: userName
+    });
+    // Auto login after registration
+    ctx.body = login(ctx, userName, passWord);
   }
 );
 

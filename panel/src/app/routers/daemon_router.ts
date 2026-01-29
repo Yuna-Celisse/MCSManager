@@ -5,6 +5,7 @@ import validator from "../middleware/validator";
 import { operationLogger } from "../service/operation_logger";
 import RemoteRequest from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
+import userSystem from "../service/user_service";
 
 const router = new Router({ prefix: "/service" });
 
@@ -40,6 +41,7 @@ router.get(
     const instanceName = ctx.query.instance_name;
     const status = ctx.query.status;
     const tag = String(ctx.query.tag);
+    const userUuid = ctx.query.user_uuid ? String(ctx.query.user_uuid) : null;
     const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
     let tagList: string[] = [];
     try {
@@ -47,13 +49,28 @@ router.get(
     } catch (error) {
       // ignore
     }
+    
+    // 如果指定了用户筛选，获取该用户拥有的实例
+    let userInstanceUuids: string[] | null = null;
+    if (userUuid) {
+      const user = userSystem.getInstance(userUuid);
+      if (user) {
+        userInstanceUuids = user.instances
+          .filter((inst) => inst.daemonId === daemonId)
+          .map((inst) => inst.instanceUuid);
+      } else {
+        userInstanceUuids = []; // 用户不存在时返回空
+      }
+    }
+    
     const result = await new RemoteRequest(remoteService).request("instance/select", {
       page,
       pageSize,
       condition: {
         instanceName,
         status,
-        tag: tagList.length > 0 ? tagList : null
+        tag: tagList.length > 0 ? tagList : null,
+        instanceUuids: userInstanceUuids
       }
     });
     ctx.body = result;

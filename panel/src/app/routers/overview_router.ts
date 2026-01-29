@@ -14,8 +14,36 @@ import RemoteRequest from "../service/remote_command";
 import RemoteServiceSubsystem from "../service/remote_service";
 import VisualDataSubsystem from "../service/visual_data";
 import { getVersion, specifiedDaemonVersion } from "../version";
+import { systemConfig } from "../setting";
 
 const router = new Router({ prefix: "/overview" });
+
+// [Low-level Permission]
+// Get available nodes for users (limited info, only when allowUserCreateInstance is enabled)
+router.get("/nodes", permission({ level: ROLE.USER }), async (ctx) => {
+  // Only allow if user is admin or allowUserCreateInstance is enabled
+  const isAdmin = ctx.session?.["permission"] === ROLE.ADMIN;
+  if (!isAdmin && !systemConfig?.allowUserCreateInstance) {
+    ctx.status = 403;
+    ctx.body = { error: "Permission denied" };
+    return;
+  }
+
+  // Get basic node info without sensitive data
+  const nodeList = Array.from(RemoteServiceSubsystem.services.entries()).map(
+    ([_, remoteService]) => ({
+      uuid: remoteService.uuid,
+      ip: remoteService.config.ip,
+      port: remoteService.config.port,
+      remarks: remoteService.config.remarks,
+      available: remoteService.available
+    })
+  );
+
+  ctx.body = {
+    remote: nodeList
+  };
+});
 
 // [Top-level Permission]
 // Control panel home page information overview routing

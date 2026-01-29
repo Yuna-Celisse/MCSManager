@@ -18,6 +18,7 @@ export enum OperationLoggerAction {
   DaemonRemove = "daemon_remove",
   DaemonConfigChange = "daemon_config_change",
   UserCreate = "user_create",
+  UserRegister = "user_register",
   UserDelete = "user_delete",
   UserConfigChange = "user_config_change",
   UserLogin = "user_login",
@@ -126,6 +127,11 @@ export type UserCreateOptions = {
   target_user_name: string;
 } & GlobalGeneralOptions;
 
+export type UserRegisterOptions = {
+  type: "user_register";
+  target_user_name: string;
+} & GlobalGeneralOptions;
+
 export type UserDeleteOptions = {
   type: "user_delete";
   target_user_name: string;
@@ -164,6 +170,7 @@ export type OperationLoggerItem =
   | DaemonRemoveOptions
   | DaemonConfigChangeOptions
   | UserCreateOptions
+  | UserRegisterOptions
   | UserDeleteOptions
   | UserConfigChangeOptions
   | UserLoginOptions

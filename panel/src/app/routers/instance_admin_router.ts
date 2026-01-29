@@ -43,15 +43,19 @@ router.get(
   }
 );
 
-// [Top-level Permission]
+// [Top-level Permission or User with allowUserCreateInstance]
 // create instance
 router.post(
   "/",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.USER }),
   validator({ query: { daemonId: String } }),
 
   async (ctx) => {
     try {
+      // Check if user has permission to create instance
+      if (!isTopPermissionByUuid(ctx.session?.["uuid"]) && !systemConfig?.allowUserCreateInstance) {
+        throw new Error($t("TXT_CODE_permission.forbidden"));
+      }
       const daemonId = String(ctx.query.daemonId);
       const config = ctx.request.body;
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
@@ -64,20 +68,37 @@ router.post(
         operator_name: ctx.session?.["userName"],
         instance_name: result.nickname
       });
+
+      // If the user is not an admin, assign the instance to the user
+      if (!isTopPermissionByUuid(ctx.session?.["uuid"])) {
+        const userUuid = getUserUuid(ctx);
+        const user = userSystem.getInstance(userUuid);
+        if (user && result.instanceUuid) {
+          const newInstances = [...user.instances, {
+            instanceUuid: result.instanceUuid,
+            daemonId: daemonId
+          }];
+          await userSystem.edit(userUuid, { instances: newInstances });
+        }
+      }
     } catch (err) {
       ctx.body = err;
     }
   }
 );
 
-// [Top-level Permission]
+// [Top-level Permission or User with allowUserCreateInstance]
 // upload the file when creating the instance
 router.post(
   "/upload",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.USER }),
   validator({ query: { daemonId: String, upload_dir: String } }),
   async (ctx) => {
     try {
+      // Check if user has permission to create instance
+      if (!isTopPermissionByUuid(ctx.session?.["uuid"]) && !systemConfig?.allowUserCreateInstance) {
+        throw new Error($t("TXT_CODE_permission.forbidden"));
+      }
       const daemonId = String(ctx.query.daemonId);
       // const uploadDir = String(ctx.query.upload_dir);
       const config = ctx.request.body;
@@ -93,6 +114,20 @@ router.post(
         operator_name: ctx.session?.["userName"],
         instance_name: result.nickname
       });
+
+      // If the user is not an admin, assign the instance to the user
+      if (!isTopPermissionByUuid(ctx.session?.["uuid"])) {
+        const userUuid = getUserUuid(ctx);
+        const user = userSystem.getInstance(userUuid);
+        if (user && newInstanceUuid) {
+          const newInstances = [...user.instances, {
+            instanceUuid: newInstanceUuid,
+            daemonId: daemonId
+          }];
+          await userSystem.edit(userUuid, { instances: newInstances });
+        }
+      }
+
       // Send a cross-end file upload task to the daemon
       const addr = remoteService.config.fullAddr;
       const remoteMappings = remoteService.config.getConvertedRemoteMappings();
@@ -211,7 +246,7 @@ router.post("/multi_open", permission({ level: ROLE.ADMIN }), async (ctx) => {
             });
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     });
     ctx.body = true;
   } catch (err) {
@@ -241,7 +276,7 @@ router.post("/multi_stop", permission({ level: ROLE.ADMIN }), async (ctx) => {
             });
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     });
     ctx.body = true;
   } catch (err) {
@@ -269,7 +304,7 @@ router.post("/multi_kill", permission({ level: ROLE.ADMIN }), async (ctx) => {
             });
           });
         })
-        .catch((err) => {});
+        .catch((err) => { });
     });
     ctx.body = true;
   } catch (err) {
@@ -297,7 +332,7 @@ router.post("/multi_restart", permission({ level: ROLE.ADMIN }), async (ctx) => 
             });
           });
         })
-        .catch((err) => {});
+        .catch((err) => { });
     });
     ctx.body = true;
   } catch (err) {

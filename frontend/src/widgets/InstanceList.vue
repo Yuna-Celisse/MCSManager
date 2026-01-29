@@ -14,6 +14,7 @@ import {
   PlayCircleOutlined,
   RedoOutlined,
   SearchOutlined,
+  UserOutlined,
   WarningOutlined
 } from "@ant-design/icons-vue";
 import { computed, h, onMounted, ref } from "vue";
@@ -22,7 +23,7 @@ import BetweenMenus from "@/components/BetweenMenus.vue";
 import { router } from "@/config/router";
 import { useInstanceTagSearch, useInstanceTagTips } from "@/hooks/useInstanceTag";
 import { useScreen } from "@/hooks/useScreen";
-import { remoteInstances, remoteNodeList } from "@/services/apis";
+import { remoteInstances, remoteNodeList, getUserInfo } from "@/services/apis";
 import {
   batchDelete,
   batchKill,
@@ -39,6 +40,7 @@ import { useInstanceMoreDetail } from "../hooks/useInstance";
 import { computeNodeName } from "../tools/nodes";
 import type { NodeStatus } from "../types/index";
 import Shortcut from "./instance/Shortcut.vue";
+import type { BaseUserInfo } from "@/types/user";
 
 defineProps<{
   card: LayoutCard;
@@ -49,13 +51,16 @@ const operationForm = ref({
   instanceName: "",
   currentPage: 1,
   pageSize: 20,
-  status: ""
+  status: "",
+  userUuid: ""
 });
 
 const currentRemoteNode = ref<NodeStatus>();
+const userList = ref<BaseUserInfo[]>([]);
 
 const { execute: getNodes, state: nodes, isLoading: isLoading1 } = remoteNodeList();
 const { execute: getInstances, state: instances, isLoading: isLoading2 } = remoteInstances();
+const { execute: getUsers } = getUserInfo();
 const { updateTagTips, tagTips } = useInstanceTagTips();
 const {
   tags: selectedTags,
@@ -93,6 +98,22 @@ const initNodes = async () => {
   }
 };
 
+const initUserList = async () => {
+  try {
+    const res = await getUsers({
+      params: {
+        userName: "",
+        page: 1,
+        page_size: 1000,
+        role: ""
+      }
+    });
+    userList.value = res.value?.data || [];
+  } catch (err) {
+    console.error("Failed to load user list:", err);
+  }
+};
+
 const initInstancesData = async (resetPage?: boolean) => {
   try {
     selectedInstance.value = [];
@@ -107,7 +128,8 @@ const initInstancesData = async (resetPage?: boolean) => {
         page_size: operationForm.value.pageSize,
         status: operationForm.value.status,
         instance_name: operationForm.value.instanceName.trim(),
-        tag: JSON.stringify(selectedTags.value)
+        tag: JSON.stringify(selectedTags.value),
+        user_uuid: operationForm.value.userUuid || undefined
       }
     });
     updateTagTips(instances.value?.allTags || []);
@@ -330,6 +352,7 @@ const batchDeleteInstance = async (deleteFile: boolean) => {
 };
 
 onMounted(async () => {
+  await initUserList();
   await initInstancesData();
   setRefreshFn(initInstancesData);
 });
@@ -405,10 +428,33 @@ onMounted(async () => {
                     {{ p }}
                   </a-select-option>
                 </a-select>
+                <a-select
+                  v-model:value="operationForm.userUuid"
+                  style="width: 140px"
+                  :placeholder="t('TXT_CODE_user_filter')"
+                  allow-clear
+                  show-search
+                  :filter-option="(input: string, option: any) => option.label?.toLowerCase().includes(input.toLowerCase())"
+                  @change="handleQueryInstance"
+                >
+                  <a-select-option value="" :label="t('TXT_CODE_all_users')">
+                    <UserOutlined />
+                    {{ t("TXT_CODE_all_users") }}
+                  </a-select-option>
+                  <a-select-option
+                    v-for="user in userList"
+                    :key="user.uuid"
+                    :value="user.uuid"
+                    :label="user.userName"
+                  >
+                    <UserOutlined />
+                    {{ user.userName }}
+                  </a-select-option>
+                </a-select>
                 <a-input
                   v-model:value.trim="operationForm.instanceName"
                   :placeholder="t('TXT_CODE_ce132192')"
-                  style="width: calc(100% - 90px)"
+                  style="width: calc(100% - 230px)"
                   @press-enter="handleQueryInstance"
                   @change="handleQueryInstance"
                 >

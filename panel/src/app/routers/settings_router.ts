@@ -61,6 +61,9 @@ router.put("/setting", permission({ level: ROLE.ADMIN }), async (ctx) => {
     if (config.allowChangeCmd != null) systemConfig.allowChangeCmd = Boolean(config.allowChangeCmd);
     if (config.registerCode != null) systemConfig.registerCode = String(config.registerCode);
     if (config.panelId != null) systemConfig.panelId = String(config.panelId);
+    if (config.allowRegister != null) systemConfig.allowRegister = Boolean(config.allowRegister);
+    if (config.allowUserCreateInstance != null)
+      systemConfig.allowUserCreateInstance = Boolean(config.allowUserCreateInstance);
 
     if (config.presetPackAddr != null) {
       // clear cache
@@ -152,10 +155,10 @@ router.post("/upload_assets", permission({ level: ROLE.ADMIN }), async (ctx) => 
   } finally {
     if (Array.isArray(files)) {
       files.forEach((v) => {
-        if (v?.filepath) fs.remove(v.filepath, () => {});
+        if (v?.filepath) fs.remove(v.filepath, () => { });
       });
     } else {
-      if (tmpFile?.filepath) fs.remove(tmpFile.filepath, () => {});
+      if (tmpFile?.filepath) fs.remove(tmpFile.filepath, () => { });
     }
   }
 });

@@ -2,6 +2,8 @@
 import { useDialog } from "@/hooks/useDialog";
 import type { ComputedNodeInfo } from "@/hooks/useOverviewInfo";
 import { useRemoteNode } from "@/hooks/useRemoteNode";
+import { getUserNodes } from "@/services/apis";
+import { useAppStateStore } from "@/stores/useAppStateStore";
 import { t } from "@/lang/i18n";
 import { reportErrorMsg } from "@/tools/validator";
 import type { MountComponent } from "@/types";
@@ -12,9 +14,11 @@ interface Props extends MountComponent<ComputedNodeInfo> {}
 const props = defineProps<Props>();
 
 const { isVisible, openDialog, cancel, submit } = useDialog<ComputedNodeInfo>(props);
+const { isAdmin } = useAppStateStore();
 
 // 获取可用节点
 const { response, refresh: refreshOverviewInfo } = useRemoteNode();
+const { execute: fetchUserNodes } = getUserNodes();
 
 const availableNodes = ref<ComputedNodeInfo[]>([]);
 
@@ -27,8 +31,16 @@ const selectNode = (node: ComputedNodeInfo) => {
 };
 
 onMounted(async () => {
-  await refreshOverviewInfo();
-  availableNodes.value = response.value?.remote?.filter((node) => node.available) || [];
+  if (isAdmin.value) {
+    // Admin uses full overview API
+    await refreshOverviewInfo();
+    availableNodes.value = response.value?.remote?.filter((node) => node.available) || [];
+  } else {
+    // Regular user uses limited nodes API
+    const result = await fetchUserNodes();
+    availableNodes.value =
+      (result.value?.remote?.filter((node) => node.available) as ComputedNodeInfo[]) || [];
+  }
 });
 
 // 暴露openDialog方法

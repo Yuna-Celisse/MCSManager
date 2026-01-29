@@ -34,17 +34,30 @@ export const panelStatus = useDefineApi<any, PanelStatus>({
 
 export const loginUser = useDefineApi<
   | {
-      // Post
-      data: {
-        username: string;
-        password: string;
-      };
-    }
+    // Post
+    data: {
+      username: string;
+      password: string;
+    };
+  }
   | undefined,
   // Response
   string
 >({
   url: "/api/auth/login",
+  method: "POST"
+});
+
+export const registerUser = useDefineApi<
+  {
+    data: {
+      username: string;
+      password: string;
+    };
+  },
+  string
+>({
+  url: "/api/auth/register",
   method: "POST"
 });
 
@@ -92,6 +105,7 @@ export const remoteInstances = useDefineApi<
       instance_name?: string;
       status?: string;
       tag?: string;
+      user_uuid?: string;
     };
   },
   {
@@ -111,8 +125,8 @@ export const settingInfo = useDefineApi<any, Settings>({
 
 export const setSettingInfo = useDefineApi<
   | {
-      data: Partial<Settings>;
-    }
+    data: Partial<Settings>;
+  }
   | undefined,
   string
 >({
@@ -191,6 +205,22 @@ export const updateUserInstance = useDefineApi<
 
 export const overviewInfo = useDefineApi<any, IPanelOverviewResponse>({
   url: "/api/overview"
+});
+
+// Get available nodes for users (limited info)
+export const getUserNodes = useDefineApi<
+  any,
+  {
+    remote: Array<{
+      uuid: string;
+      ip: string;
+      port: number;
+      remarks: string;
+      available: boolean;
+    }>;
+  }
+>({
+  url: "/api/overview/nodes"
 });
 
 export const editNode = useDefineApi<

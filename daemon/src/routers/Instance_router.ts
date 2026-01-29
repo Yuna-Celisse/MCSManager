@@ -48,6 +48,7 @@ routerApp.on("instance/select", (ctx, data) => {
   const pageSize = toNumber(data.pageSize) ?? 1;
   const condition = data.condition;
   const targetTag = data.condition.tag;
+  const instanceUuids = data.condition.instanceUuids; // 新增：筛选特定实例UUID
   const overview: IInstanceDetail[] = [];
   // keyword condition query
   const queryWrapper = InstanceSubsystem.getQueryMapWrapper();
@@ -61,6 +62,12 @@ routerApp.on("instance/select", (ctx, data) => {
   let result = queryWrapper.select<Instance>((v) => {
     if (v.config.tag) allTags.push(...v.config.tag);
     if (InstanceSubsystem.isGlobalInstance(v)) return false;
+    
+    // 如果指定了实例UUID列表，只返回这些实例
+    if (instanceUuids instanceof Array) {
+      if (!instanceUuids.includes(v.instanceUuid)) return false;
+    }
+    
     if (
       condition.instanceName &&
       !v.config.nickname.toLowerCase().includes(condition.instanceName.toLowerCase())

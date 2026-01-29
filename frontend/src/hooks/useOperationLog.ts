@@ -1,7 +1,7 @@
-import { computed, ref } from "vue";
-import { getOperationLog } from "@/services/apis/operationLog";
 import { t } from "@/lang/i18n";
+import { getOperationLog } from "@/services/apis/operationLog";
 import type { OperationLoggerItem } from "@/types/operationLog";
+import { computed, ref } from "vue";
 
 type TextRenderResult = {
   text: string;
@@ -112,6 +112,10 @@ const renderMap: OperationRenderer = {
   user_create: (item) => ({
     text: t("TXT_CODE_faa1962b"),
     data: [item.operator_name || item.operation_id, item.target_user_name]
+  }),
+  user_register: (item) => ({
+    text: t("TXT_CODE_user_register_log"),
+    data: [item.operator_name || item.operation_id]
   }),
   user_delete: (item) => ({
     text: t("TXT_CODE_cd76bc9"),
