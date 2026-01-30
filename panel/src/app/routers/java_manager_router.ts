@@ -38,7 +38,7 @@ router.get(
 router.post(
   "/download",
   speedLimit(3),
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.USER }),
   validator({
     query: {
       daemonId: String,
@@ -86,10 +86,11 @@ router.post(
 
 router.delete(
   "/delete",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.USER }),
   validator({
     query: {
-      daemonId: String
+      daemonId: String,
+      instanceId: String
     },
     body: {
       id: String

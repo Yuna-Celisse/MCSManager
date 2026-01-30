@@ -19,11 +19,15 @@ import {
   CodeOutlined,
   ControlOutlined,
   DashboardOutlined,
+  DeleteOutlined,
   FieldTimeOutlined,
   FolderOpenOutlined,
   UsbOutlined,
   UsergroupDeleteOutlined
 } from "@ant-design/icons-vue";
+import { useDeleteInstanceDialog } from "@/components/fc";
+import { message } from "ant-design-vue";
+import { useAppRouters as useRouters } from "@/hooks/useAppRouters";
 
 import { computed, ref, watch } from "vue";
 import type { RouteLocationPathRaw } from "vue-router";
@@ -214,7 +218,6 @@ const btns = computed(() => {
     {
       title: t("TXT_CODE_4f34fc28"),
       icon: AppstoreAddOutlined,
-      condition: () => isAdmin.value,
       click: () => {
         instanceDetailsDialog.value?.openDialog();
       }
@@ -228,14 +231,16 @@ const btns = computed(() => {
       condition: () => instanceInfo.value?.config.type.includes(TYPE_MINECRAFT_JAVA) ?? false
     },
     {
-      title: t("TXT_CODE_4f34fc28"),
-      icon: AppstoreAddOutlined,
-      condition: () =>
-        !isAdmin.value &&
-        instanceInfo.value?.config.processType === "docker" &&
-        state.settings.allowChangeCmd,
-      click: () => {
-        instanceFundamentalDetailDialog.value?.openDialog();
+      title: t("TXT_CODE_a0e19f38"),
+      icon: DeleteOutlined,
+      click: async () => {
+        const deleteInstanceResult = await useDeleteInstanceDialog(
+          instanceId || "",
+          daemonId || ""
+        );
+        if (!deleteInstanceResult) return;
+        message.success(t("TXT_CODE_f486dbb4"));
+        window.location.href = "/#/customer";
       }
     }
   ]);

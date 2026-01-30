@@ -156,13 +156,24 @@ router.post(
 // Update instance information (manage users)
 router.put(
   "/",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.USER }),
   validator({ query: { daemonId: String, uuid: String } }),
   async (ctx) => {
     try {
       const daemonId = String(ctx.query.daemonId);
       const instanceUuid = String(ctx.query.uuid);
       const config = ctx.request.body;
+
+      const userUuid = getUserUuid(ctx);
+      const isAdmin = isTopPermissionByUuid(userUuid);
+
+      // Non-admin users can only update instances they own
+      if (!isAdmin) {
+        if (!isHaveInstanceByUuid(userUuid, daemonId, instanceUuid)) {
+          throw new Error($t("TXT_CODE_permission.forbidden"));
+        }
+      }
+
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       const result = await new RemoteRequest(remoteService).request("instance/update", {
         instanceUuid,
@@ -186,7 +197,7 @@ router.put(
 // delete instance
 router.delete(
   "/",
-  permission({ level: ROLE.ADMIN }),
+  permission({ level: ROLE.USER }),
   validator({ query: { daemonId: String }, body: { uuids: Object, deleteFile: Boolean } }),
   async (ctx) => {
     try {
@@ -196,6 +207,19 @@ router.delete(
       const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
       if (!instanceUuids || !Array.isArray(instanceUuids))
         throw new Error("Type error, invalid uuids or daemonId");
+
+      const userUuid = getUserUuid(ctx);
+      const isAdmin = isTopPermissionByUuid(userUuid);
+
+      // Non-admin users can only delete instances they own
+      if (!isAdmin) {
+        for (const uuid of instanceUuids) {
+          if (!isHaveInstanceByUuid(userUuid, daemonId, uuid)) {
+            throw new Error($t("TXT_CODE_permission.forbidden"));
+          }
+        }
+      }
+
       const instanceIds = instanceUuids.map((uuid: string) => {
         return { instanceUuid: uuid, daemonId };
       });
