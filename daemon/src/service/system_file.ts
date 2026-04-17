@@ -192,7 +192,7 @@ export default class FileManager {
     // if (!FileManager.checkFileName(fileName)) throw new Error(ERROR_MSG_01);
     if (!this.checkPath(fileName)) throw new Error(ERROR_MSG_01);
     const target = this.toAbsolutePath(fileName);
-    fs.createFile(target);
+    await fs.createFile(target);
   }
 
   async copy(target1: string, target2: string) {
@@ -254,7 +254,7 @@ export default class FileManager {
         filesPath.push(this.toAbsolutePath(iterator));
         try {
           totalSize += fs.statSync(this.toAbsolutePath(iterator))?.size;
-        } catch (error: any) {}
+        } catch (error: any) { }
       }
     }
     if (totalSize > MAX_TOTAL_FIELS_SIZE)
